@@ -1,0 +1,139 @@
+Cloner (standard)
+
+0x73<address>3d803b3d3d82943cf3
+
+pc op name             [stack] + <memory> + *runtime!*
+-- -- ---------------- -------------------------------
+00 73 PUSH20 <address> [address]
+21 3d RETURNDATASIZE   [address, 0]
+22 80 DUP1             [address, 0, address]
+23 3b EXTCODESIZE      [address, 0, size]
+24 3d RETURNDATASIZE   [address, 0, size, 0]
+25 3d RETURNDATASIZE   [address, 0, size, 0, 0]
+26 82 DUP3             [address, 0, size, 0, 0, size]
+27 94 SWAP5            [size, 0, size, 0, 0, address]
+28 3c EXTCODECOPY      [size, 0] <code_to_clone>
+29 f3 RETURN           [] *code_to_clone*
+
+
+
+Cloner (metamorphic)
+
+0x5860203d593d335afa1551803b80928080933cf3
+
+pc op name             [stack] + <memory> + *runtime!*
+-- -- ---------------- --------------------------------
+
+00 58 PC               [0]
+00 60 PUSH1 0x20       [0, 32]
+02 3d RETURNDATASIZE   [0, 32, 0]
+03 59 MSIZE            [0, 32, 0, 0]
+04 3d RETURNDATASIZE   [0, 32, 0, 0, 0]
+05 33 CALLER           [0, 32, 0, 0, 0, caller]
+06 5a GAS              [0, 32, 0, 0, 0, caller, gas]    
+07 fa STATICCALL       [0, 1 (if successful)] <address>
+08 15 ISZERO           [0, 0]
+10 51 MLOAD            [0, address]                     
+11 80 DUP1             [0, address, address]
+12 3b EXTCODESIZE      [0, address, size]
+13 80 DUP1             [0, address, size, size]
+14 92 SWAP3            [size, address, size, 0]
+15 80 DUP1             [size, address, size, 0, 0]
+16 80 DUP1             [size, address, size, 0, 0, 0]
+17 93 SWAP4            [size, 0, size, 0, 0, address]    
+18 3c EXTCODECOPY      [size, 0] <code_to_clone>
+19 f3 RETURN           [] *code_to_clone*
+
+
+
+Transient Deployer
+
+0x58593d59335afa3d59343d59593ef080601a573d81ed81803efd5bff
+
+pc op name             [stack] + <memory> + {return_buffer} + -contract- + *return*
+-- -- ---------------- ------------------------------------------------------------
+00 58 PC               [0]
+01 59 MSIZE            [0, 0]
+02 3d RETURNDATASIZE   [0, 0, 0]
+03 59 MSIZE            [0, 0, 0, 0]
+04 33 CALLER           [0, 0, 0, 0, caller]
+05 5a GAS              [0, 0, 0, 0, caller, gas]   
+06 fa STATICCALL       [1 (if successful)] {creation_code}
+07 3d RETURNDATASIZE   [x, size]
+08 59 MSIZE            [x, size, 0]
+09 34 CALLVALUE        [x, size, 0, Ξ]
+10 3d RETURNDATASIZE   [x, size, 0, Ξ, size]
+11 59 MSIZE            [x, size, 0, Ξ, size, 0]
+12 59 MSIZE            [x, size, 0, Ξ, size, 0, 0]
+13 3e RETURNDATACOPY   [x, size, 0, Ξ] <creation_code>
+14 f0 CREATE           [x, address (if successful)] -contract- or {revert_reason}
+15 80 DUP1             [x, address, address]
+16 60 PUSH1 0x1a       [x, address, address, 26]
+18 57 JUMPI            [x, 0]
+19 3d RETURNDATASIZE   [x, 0, size]
+20 81 DUP2             [x, 0, size, 0]
+21 3d RETURNDATASIZE   [x, 0, size, 0, size]
+22 81 DUP2             [x, 0, size, 0, size, 0]
+23 80 DUP1             [x, 0, size, 0, size, 0, 0]
+24 3e RETURNDATACOPY   [x, 0, size, 0 <revert_reason>
+25 fd REVERT           [x, 0] *revert_reason*
+26 5b JUMPDEST         [x, address] 
+27 ff SELFDESTRUCT     [x] 👋 さよなら 👋
+
+
+
+Arbitrary runtime prelude
+
+0x600b5981380380925939f3...
+
+pc op name       [stack] + <memory> + *runtime!*
+-- -- ---------- ----------------------------------------------
+
+00 60 PUSH1 0x0b [11 -> offset]
+02 59 MSIZE      [offset, 0]
+03 81 DUP2       [offset, 0, offset]
+04 38 CODESIZE   [offset, 0, offset, codesize]
+05 03 SUB        [offset, 0, codesize - offset => runtime_size]
+06 80 DUP1       [offset, 0, runtime_size, runtime_size]
+07 92 SWAP3      [runtime_size, 0, runtime_size, offset]
+08 59 MSIZE      [runtime_size, 0, runtime_size, offset, 0]
+09 39 CODECOPY   [runtime_size, 0] <arbitrary_runtime>
+10 f3 RETURN     [] *arbitrary_runtime*
+... arbitrary_runtime
+
+
+
+Metamorphic Delegator
+
+0x58593d593d5960203d593d335afa15515af43d3d93833e601b57fd5bf3
+
+pc op name           [stack] + <memory> + {return_buffer} + *runtime!*
+-- -- -------------- -------------------------------------------------
+
+00 58 PC             [0]
+01 59 MSIZE          [0, 0]
+02 3d RETURNDATASIZE [0, 0, 0]
+03 59 MSIZE          [0, 0, 0, 0]
+04 3d RETURNDATASIZE [0, 0, 0, 0, 0]
+05 59 MSIZE          [0, 0, 0, 0, 0, 0]
+06 60 PUSH1 0x20     [0, 0, 0, 0, 0, 0, 32]
+08 3d RETURNDATASIZE [0, 0, 0, 0, 0, 0, 32, 0]
+09 59 MSIZE          [0, 0, 0, 0, 0, 0, 32, 0, 0]
+10 3d RETURNDATASIZE [0, 0, 0, 0, 0, 0, 32, 0, 0, 0]
+11 33 CALLER         [0, 0, 0, 0, 0, 0, 32, 0, 0, 0, caller]
+12 5a GAS            [0, 0, 0, 0, 0, 0, 32, 0, 0, 0, caller, gas]    
+13 fa STATICCALL     [0, 0, 0, 0, 0, 0, 1] <creation_in_runtime>
+14 15 ISZERO         [0, 0, 0, 0, 0, 0, 0]
+15 51 MLOAD          [0, 0, 0, 0, 0, 0, creation_in_runtime]
+16 5a GAS            [0, 0, 0, 0, 0, 0, creation_in_runtime, gas]
+17 f4 DELEGATECALL   [0, 0, 1 or 0] {runtime_code or revert_reason}
+18 3d RETURNDATASIZE [0, 0, 1 or 0, size]
+19 3d RETURNDATASIZE [0, 0, 1 or 0, size, size]
+20 93 SWAP4          [size, 0, 1 or 0, size, 0]
+21 83 DUP4           [size, 0, 1 or 0, size, 0, 0]
+22 3e RETURNDATACOPY [size, 0, 1 or 0] <runtime_code or revert_reason>
+23 60 PUSH1 0x1b     [size, 0, 1 or 0, 27]
+25 57 JUMPI          [size, 0]
+26 fd REVERT         [] *revert_reason*
+27 5b JUMPDEST       [size, 0]
+28 f3 RETURN         [] *runtime_code*
